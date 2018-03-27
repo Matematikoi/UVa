@@ -1,0 +1,35 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+#define ll long long
+const ll m=1000000009; 
+//Vamos a definir una matriz por vectores columna
+struct vector3{
+	ll f;ll s; ll t;
+};
+// Una matrix 3x3 tiene 3 vectores columna
+struct matrix {
+	vector3 f; vector3 s; vector3 t;
+};
+matrix I= {vector3 {1,0,0}, vector3 {0,1,0} , vector3 {0,0,1}};
+vector3 operator * (matrix A , vector3 b){return vector3 {(A.f.f*b.f+A.s.f*b.s+A.t.f*b.t)%m, (A.f.s*b.f+A.s.s*b.s+A.t.s*b.t)%m, (A.f.t*b.f+A.s.t*b.s+A.t.t*b.t)%m};}
+matrix operator * (matrix A , matrix B ){return matrix {A*B.f, A*B.s, A*B.t};}
+matrix fastpow ( matrix A , ll n ){
+	if ( n == 0)return I;
+	if ( n == 1)return A; 
+	matrix a = fastpow ( A, n/2 );	
+	return a*a* (n&1?A:I);
+}
+ll tribonacci ( ll n ){
+	if (n==1)return 0LL;
+	matrix FIB = {vector3 {0,0,1}, vector3 {1,0,1} , vector3 {0,1,1}};
+	return fastpow (FIB, n+1 ).s.f;
+}
+int main (){
+	ll n;
+	while (1){
+		cin>>n;
+		if (n==0)break;
+		printf("%ld\n", tribonacci(n));
+	}
+}
