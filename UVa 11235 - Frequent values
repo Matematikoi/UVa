@@ -1,0 +1,101 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+const int sz=200005;
+
+int num[sz], pre[sz];
+map<int,int> start;
+struct STree{
+    int fr, to;
+    STree *L, *R;
+    int mx;
+    STree ( int i , int j){
+        mx=0; fr = i; to =j;
+        if ( i==j)L=R=0;
+        else {
+            L= new STree (i, (i+j)/2);
+            R= new STree ((i+j)/2+1, j);
+        }
+    }
+    void update ( int i , int newVal ){
+        if (fr==to){
+            mx = newVal;
+            return;
+        }
+        if ( i<= L->to) L-> update (i,newVal);
+        else R-> update (i,newVal);
+        mx= max(L->mx,R-> mx);
+    }
+    int getMax ( int i , int j ){
+        //printf("fr:%d to:%d i:%d j:%d mx:%d\n",fr,to, i,j,mx);
+        if (fr==i && to == j)return mx;
+        if (j<= L->to)return L->getMax ( i,j);
+        if (i>= R->fr)return R->getMax (i,j);
+        return max(L->getMax(i,L->to), R->getMax(R->fr, j));
+    }
+};
+int cuantosd ( int i ){
+    //if (num[i]!= num[i+1])return 1;
+    return pre[i]-( i-start[num[i]]);
+}
+int cuantosi (int i){
+    //if ( num[i] != num[i-1])return 1;
+    return i-start[num[i]];
+}
+
+int main (){
+    #ifdef mathos
+    freopen ("OUT.txt","w",stdout);
+    #endif
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    int n , q;
+    while(1){
+        cin>>n;
+        if(n== 0)return 0;
+        cin>>q;
+        int lleva=1;
+        cin>>num[0];
+        start[num[0]] = 0;
+        for(int i = 1 ; i < n ; i++){
+            cin>>num[i];
+            if ( num[i] == num [i-1] )
+                lleva++;
+            else {
+                for (int j=i-1; j>=start[num[i-1]] ;j--)
+                    pre[j]= lleva;
+                lleva=1;
+                start[num[i]]= i;
+            }
+
+        }
+        for (int i = start [num[n-1]] ; i< n; ++i)pre[i]=lleva;
+        //this is for prints
+        //for( map<int,int>::iterator it=start.begin(); it != start.end() ; ++it )printf("%d %d\n",it->first, it->second);
+        //for (int i = 1 ; i<= n ; ++i)printf("%d) %d\n",i,pre[i-1]);
+        //until here
+        STree maxTree(1, n);
+        for ( int i = 1 ; i <= n; i++){
+            maxTree.update(i,pre[i-1]);
+        }
+        int l,r;
+        while ( q--){
+            cin>>l>>r;
+            int rta;
+            if ( num[l-1]!= num[r-1] ) {
+                rta = max ( pre[l-1]-( l-1-start[num[l-1]]),r-start[num[r-1]] );
+                if ( l+pre[l-1]-( l-1-start[num[l-1]]) <= start[num[r-1]]-1)rta = max ( rta,  maxTree.getMax(l+pre[l-1]-( l-1-start[num[l-1]]), start[num[r-1]]-1));
+            }
+            else
+                rta= r-l+1;
+            printf("%d\n", rta);
+            //printf("%d\n",maxTree.getMax(l,r));
+        }
+
+
+    }
+
+    #ifdef mathos
+    fclose (stdout);
+    #endif // mathos
+}
